@@ -95,25 +95,25 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
       }
     }
 
-    switch (Theme.of(context).platform) {
-      case TargetPlatform.iOS:
-        return CupertinoPageScaffold(
-          navigationBar: widget.appBar,
-          child: const Center(
-            child: const CupertinoActivityIndicator(
-              animating: true,
-            ),
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      print('ios');
+      return CupertinoPageScaffold(
+        navigationBar: widget.appBar,
+        child: const Center(
+          child: const CupertinoActivityIndicator(
+            animating: true,
           ),
-        );
-      default:
-        return Scaffold(
-          appBar: widget.appBar,
-          persistentFooterButtons: widget.persistentFooterButtons,
-          bottomNavigationBar: widget.bottomNavigationBar,
-          body: const Center(
-            child: const CircularProgressIndicator(),
-          ),
-        );
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: widget.appBar,
+        persistentFooterButtons: widget.persistentFooterButtons,
+        bottomNavigationBar: widget.bottomNavigationBar,
+        body: const Center(
+          child: const CircularProgressIndicator(),
+        ),
+      );
     }
   }
 
