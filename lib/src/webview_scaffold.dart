@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'base.dart';
 
@@ -23,31 +24,31 @@ class WebviewScaffold extends StatefulWidget {
 
   final Map<String, String> headers;
 
-  const WebviewScaffold(
-      {Key key,
-      this.appBar,
-      @required this.url,
-      this.headers,
-      this.withJavascript,
-      this.clearCache,
-      this.clearCookies,
-      this.enableAppScheme,
-      this.userAgent,
-      this.primary = true,
-      this.persistentFooterButtons,
-      this.bottomNavigationBar,
-      this.withZoom,
-      this.withLocalStorage,
-      this.withLocalUrl,
-      this.scrollBar})
-      : super(key: key);
+  const WebviewScaffold({
+    Key key,
+    this.appBar,
+    @required this.url,
+    this.headers,
+    this.withJavascript,
+    this.clearCache,
+    this.clearCookies,
+    this.enableAppScheme,
+    this.userAgent,
+    this.primary = true,
+    this.persistentFooterButtons,
+    this.bottomNavigationBar,
+    this.withZoom,
+    this.withLocalStorage,
+    this.withLocalUrl,
+    this.scrollBar,
+  }) : super(key: key);
 
   @override
-  _WebviewScaffoldState createState() => new _WebviewScaffoldState();
+  _WebviewScaffoldState createState() => _WebviewScaffoldState();
 }
 
 class _WebviewScaffoldState extends State<WebviewScaffold> {
-  final webviewReference = new FlutterWebviewPlugin();
+  final webviewReference = FlutterWebviewPlugin();
   Rect _rect;
   Timer _resizeTimer;
 
@@ -68,34 +69,52 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
   Widget build(BuildContext context) {
     if (_rect == null) {
       _rect = _buildRect(context);
-      webviewReference.launch(widget.url,
-          headers: widget.headers,
-          withJavascript: widget.withJavascript,
-          clearCache: widget.clearCache,
-          clearCookies: widget.clearCookies,
-          enableAppScheme: widget.enableAppScheme,
-          userAgent: widget.userAgent,
-          rect: _rect,
-          withZoom: widget.withZoom,
-          withLocalStorage: widget.withLocalStorage,
-          withLocalUrl: widget.withLocalUrl,
-          scrollBar: widget.scrollBar);
+      webviewReference.launch(
+        widget.url,
+        headers: widget.headers,
+        withJavascript: widget.withJavascript,
+        clearCache: widget.clearCache,
+        clearCookies: widget.clearCookies,
+        enableAppScheme: widget.enableAppScheme,
+        userAgent: widget.userAgent,
+        rect: _rect,
+        withZoom: widget.withZoom,
+        withLocalStorage: widget.withLocalStorage,
+        withLocalUrl: widget.withLocalUrl,
+        scrollBar: widget.scrollBar,
+      );
     } else {
       final rect = _buildRect(context);
       if (_rect != rect) {
         _rect = rect;
         _resizeTimer?.cancel();
-        _resizeTimer = new Timer(new Duration(milliseconds: 300), () {
+        _resizeTimer = Timer(Duration(milliseconds: 300), () {
           // avoid resizing to fast when build is called multiple time
           webviewReference.resize(_rect);
         });
       }
     }
-    return new Scaffold(
-        appBar: widget.appBar,
-        persistentFooterButtons: widget.persistentFooterButtons,
-        bottomNavigationBar: widget.bottomNavigationBar,
-        body: const Center(child: const CircularProgressIndicator()));
+
+    switch (Theme.of(context).platform) {
+      case TargetPlatform.iOS:
+        return CupertinoPageScaffold(
+          navigationBar: widget.appBar,
+          child: const Center(
+            child: const CupertinoActivityIndicator(
+              animating: true,
+            ),
+          ),
+        );
+      default:
+        return Scaffold(
+          appBar: widget.appBar,
+          persistentFooterButtons: widget.persistentFooterButtons,
+          bottomNavigationBar: widget.bottomNavigationBar,
+          body: const Center(
+            child: const CircularProgressIndicator(),
+          ),
+        );
+    }
   }
 
   Rect _buildRect(BuildContext context) {
@@ -126,6 +145,6 @@ class _WebviewScaffoldState extends State<WebviewScaffold> {
       height = 0.0;
     }
 
-    return new Rect.fromLTWH(0.0, top, mediaQuery.size.width, height);
+    return Rect.fromLTWH(0.0, top, mediaQuery.size.width, height);
   }
 }

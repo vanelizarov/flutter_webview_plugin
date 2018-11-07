@@ -16,16 +16,16 @@ enum WebViewState { shouldStart, startLoad, finishLoad }
 class FlutterWebviewPlugin {
   final _channel = const MethodChannel(_kChannel);
 
-  final _onDestroy = new StreamController<Null>.broadcast();
-  final _onUrlChanged = new StreamController<String>.broadcast();
-  final _onStateChanged = new StreamController<WebViewStateChanged>.broadcast();
-  final _onScrollXChanged = new StreamController<double>.broadcast();
-  final _onScrollYChanged = new StreamController<double>.broadcast();
-  final _onHttpError = new StreamController<WebViewHttpError>.broadcast();
+  final _onDestroy = StreamController<Null>.broadcast();
+  final _onUrlChanged = StreamController<String>.broadcast();
+  final _onStateChanged = StreamController<WebViewStateChanged>.broadcast();
+  final _onScrollXChanged = StreamController<double>.broadcast();
+  final _onScrollYChanged = StreamController<double>.broadcast();
+  final _onHttpError = StreamController<WebViewHttpError>.broadcast();
 
   static FlutterWebviewPlugin _instance;
 
-  factory FlutterWebviewPlugin() => _instance ??= new FlutterWebviewPlugin._();
+  factory FlutterWebviewPlugin() => _instance ??= FlutterWebviewPlugin._();
 
   FlutterWebviewPlugin._() {
     _channel.setMethodCallHandler(_handleMessages);
@@ -47,8 +47,8 @@ class FlutterWebviewPlugin {
         break;
       case "onState":
         _onStateChanged.add(
-          new WebViewStateChanged.fromMap(
-              new Map<String, dynamic>.from(call.arguments)),
+          WebViewStateChanged.fromMap(
+              Map<String, dynamic>.from(call.arguments)),
         );
         break;
       case 'onHttpError':
@@ -165,7 +165,7 @@ class FlutterWebviewPlugin {
   // Shows the webview
   Future show() => _channel.invokeMethod('show');
 
-  // Reload webview with a new url
+  // Reload webview with a url
   Future reloadUrl(String url) async {
     final args = <String, String>{'url': url};
     await _channel.invokeMethod('reloadUrl', args);
@@ -242,7 +242,7 @@ class WebViewStateChanged {
         t = WebViewState.finishLoad;
         break;
     }
-    return new WebViewStateChanged(t, map['url'], map['navigationType']);
+    return WebViewStateChanged(t, map['url'], map['navigationType']);
   }
 }
 
